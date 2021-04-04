@@ -1,0 +1,51 @@
+Afis toti studentii din 214 cu doua prenume:
+grep -E"gr214" /etc/passwd |  awk -F: '{print $5} | grep -E "[a-z]+[ ][A-Za-z]+$" 
+
+Afis toti studentii care au nume mai mare de 9 caractere
+grep -E --color "gr214" /etc/passwd | awk -F: '{print $5}' | grep -E "^[A-Za-z]{9} "
+
+Sterge : din fisier
+sed -E "s/://gi" /etc/passwd
+
+Probleme de la alinutza:
+
+2.grep -E "^[^0-9]" /etc/passwd | awk -F: '{print $3}'
+
+
+Trecerea prin separatori:
+grep -E -i "^([^:]*:){4}[^:]*[a-z]{12,}" /etc/passwd
+
+De pe site:
+
+1.Find all the usernames that logged in from "economica" on a Sunday
+awk ' $3 ~ /economica/ &&  $4 ~ /Sun/ {print $1}' last.fake | sort -u
+
+2.Find all the users that logged into the system after 11PM
+sed -E "s/([0-9]{2})(:)([0-9]{2})/\1/gi" last.fake | awk ' $7 >= 23 {print $1}' | sort -u
+
+3.Display the full names of the users having a username that starts with "m" and with a user ID divisible by 7.
+grep -E "^m" passwd.fake | sed -E "s/([a-z]{4})([0-9]{4})/\2/gi" | awk -F: '$1 % 7 == 0 {print $5}'
+
+4.Display all the distinct TTYs used by user root.
+grep -E "^root" ps.fake | awk '{print $6}' | sort -u
+
+5.Find the full names of all the users whose username ends in 88
+grep -E "^[^:]{6}88:" passwd.fake | awk -F: '{print $5}'
+
+6.Find all users whose user ID has three digits and starts with 23
+awk -F: ' $3 ~ /23[0-9]+/ {print $5}' passwd.fake
+
+7.Find all usersnames starting with "t" that logged on "pts/9"
+awk ' $1 ~ /^t/ && $2 ~ /pts\/9/ {print $1}' last.fake
+
+8.Find all the distinct usernames starting with "r" that are currently running programs, and display them duplicating every vowel
+awk ' $1 ~ /^r/ {print $1}' ps.fake | sort -u | sed -E "s/([aeiou])/\1\1/gi"
+
+9.Display all the distinct lines left in /etc/passwd after deleting all letter and digits and spaces.
+sed -E "s/[a-zA-z0-9 ]//gi" passwd.fake | sort -u
+
+10.Display all the distinct lines left in /etc/passwd after deleting all characters except "r".
+sed -E "s/[^r]//gi" passwd.fake | sort -u
+
+11.Calculate the average of the PIDs of the processes currently running in the system.
+awk 'BEGIN{ sum = 0 } { sum += $2}  END {print sum/(NR+1)}' ps.fake

@@ -1,0 +1,96 @@
+formatul fisierului:
+full_name, data_achizitionarii, rand, loc, phone_number, email, city county
+
+GREP:
+
+1. Afisati toate liniile ce contin sirul de caractere "frances" (case insesitive)
+grep -E -i "frances" test_grepsedenoc.csv
+
+2. Afisati toate liniile ce contin numele de familie "Wiley" (case sensitive). Full names se afla pe coloana 1 si au formatul "Prenume Nume_de_Familie"
+grep -E  "Wiley" test_grepsedenoc.csv
+
+3. Afisati toate liniile ce contin bilete achizitionate pe randul "L".
+grep -E  "^([^,]*,){2}[L]" test_grepsedenoc.csv
+
+4. Afisati toti clientii ce au achizitionat bilete pe locul 1.
+grep -E  "^([^,]*,){3}[1][,]" test_grepsedenoc.csv
+
+5. Afisati toti clientii ce locuiesc in judetul Cluj.
+grep -E  " Cluj$" test_grepsedenoc.csv
+
+6. Afisati toti clientii ce au numere de telefon ce incep cu 0744
+grep -E  "^([^,]*,){4}0744" test_grepsedenoc.csv
+
+7. Afisati toti clientii ce folosesc un e-mail care are exact 4 vocale in username si au yahoo ca si provider.
+grep -E  "^([^,]*,){5}[^,]*@yahoo.com," test_grepsedenoc.csv // nasol oleac doar cu grep
+
+8. Afisati numarul de clienti unic ce locuiesc in judetul Cluj
+grep -E  " Cluj$" test_grepsedenoc.csv | awk -F,  '{print $1}' | sort -u
+
+
+9. Afisati clientii ce locuiesc in Gilau sau Floresti
+grep -E  "^([^,]*,){6}[^,]*Floresti|^([^,]*,){6}[^,]*Gilau" test_grepsedenoc.csv
+
+10. Afisati clientii care nu locuiesc in Sibiu.
+grep -E -v " Sibiu$" test_grepsedenoc.csv
+
+SED (recomandarea mea este sa nu suprascrieti continutul fisierului cand lucrati):
+
+1. Afisati continul intregului fisier
+sed -E "p" test_grepsedenoc.csv
+
+2. Afisati liniile de la 20 la 50
+sed -E -n "20,50p" test_grepsedenoc.csv
+
+3. Stergeti toate liniil ecare continut numele de familie Wiley
+sed -E "/\<Wiley\>/d" test_grepsedenoc.csv
+
+4. Stergeti toate liniile care au mai mult de 80 de caractere
+sed -E "/(.){80,}/d" test_grepsedenoc.csv
+
+5. Inlocuiti toate vocalele cu "*"
+sed -E "s/[aeiouAEIOU]/\*/gi" test_grepsedenoc.csv
+
+5. Inversati Prenumele cu Numele de familie (Prenume Nume_de_familie -> Nume_de_familie Prenume)
+sed -E "s/(^[A-Z][a-z]+)( [A-Z][a-z]+)/\2 \1/gi" test_grepsedenoc.csv
+
+6. Inlocuiti judetul cu varianta abreviata:
+    Cluj Napoca -> CJ
+    Alba -> AB
+    Sibiu -> SB
+    Bistrita-Nasaud -> BN
+    Bihor -> BH
+sed -E "s/Cluj/CJ/gi" test_grepsedenoc.csv |  sed -E "s/Bihor/BH/gi"|  sed -E "s/Alba/AB/gi" |  sed -E "s/Sibiu/SB/gi" |  sed -E "s/Bistrita-Nasaud/BN/gi"
+
+7. Inserati pe a 30 linie un nou client de forma (ce valori doriti voi):
+    full_name, data_achizitionarii, rand, loc, phone_number, email, city county
+sed -E "30a linie noua lmao" test_grepsedenoc.csv
+
+8. Inversati urmatoarele litere astfel (case sensitive):
+    o -> 0
+    e -> 3
+    g -> 9
+    a -> @
+    B -> 8
+sed -E "y/oegaB/039@8/" test_grepsedenoc.csv
+
+9. Inlocuiti prenumele "Gregory" cu "Grigore".
+sed -E "s/Gregory/Grigore/g" test_grepsedenoc.csv
+
+10. Inlocuiti providerul @fake.com cu un provider la alegere.
+sed -E "s/@fake.com/@onlyfans.com/gi" test_grepsedenoc.csv
+
+AWK:
+1. Exercitiile GREP + SED
+2. Numarati cati clienti unici locuiesc in judetul Bihor
+grep -E "Bihor$" test_grepsedenoc.csv | awk -F, '{print $1}' | sort -u | wc -l
+
+3. Afisati coloanele impare de pe fiecare linie
+awk -F, '{for (i = 1; i <= NF; i++) print $i}' test_grepsedenoc.csv
+
+4. Afisati cate biletele a cumparat fiecare client
+awk -F, '{arr[$1] += $4} END {for (u in arr) print u, arr[u]}' test_grepsedenoc.csv
+
+5. Afisati cele mai populare 5 randuri (popular insemana un numar ridicat de bilete achizitionate)
+awk -F, '{arr[$1] += $4} END {for (u in arr) print u, arr[u]}' test_grepsedenoc.csv | sort -t " " -k3  -n | tail -5
+
